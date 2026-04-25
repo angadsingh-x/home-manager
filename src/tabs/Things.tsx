@@ -5,6 +5,7 @@ import { useAddRow, useDeleteRow, useRows, useUpdateRow } from '@/api/hooks';
 import { Button } from '@/components/ui/button';
 import { Input, Label, Textarea } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/PageHeader';
 import type { ThingRow } from '@/types';
 
@@ -57,7 +58,21 @@ export function ThingsTab() {
       />
 
       <div className="p-4 space-y-4">
-        {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+        {isLoading &&
+          [0, 1].map((cat) => (
+            <div key={cat} className="space-y-2">
+              <Skeleton className="h-3 w-24" />
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="space-y-2 rounded-lg border border-border bg-card px-4 py-3"
+                >
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-3 w-3/4" />
+                </div>
+              ))}
+            </div>
+          ))}
         {!isLoading && grouped.length === 0 && (
           <p className="text-sm text-muted-foreground">Nothing here yet. Add gas/bill numbers, Wi-Fi password, etc.</p>
         )}

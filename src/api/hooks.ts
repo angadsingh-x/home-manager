@@ -1,12 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { useAuth } from '@/auth/useAuth';
-import { apiCall } from './client';
+import { ApiError, apiCall } from './client';
 import type { HomeView, RowByTab, TabName } from '@/types';
 
 function useToken() {
   const { idToken } = useAuth();
   return idToken;
 }
+
+function errMsg(e: unknown, fallback: string): string {
+  if (e instanceof ApiError) return `${fallback}: ${e.message}`;
+  if (e instanceof Error && e.message) return `${fallback}: ${e.message}`;
+  return fallback;
+}
+
+const ERROR_DURATION = 5_000;
 
 export function useRows<T extends TabName>(tab: T) {
   const idToken = useToken();
@@ -35,6 +44,10 @@ export function useAddRow<T extends TabName>(tab: T) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['rows', tab] });
       qc.invalidateQueries({ queryKey: ['home'] });
+      toast.success('Saved');
+    },
+    onError: (e) => {
+      toast.error(errMsg(e, "Couldn't save"), { duration: ERROR_DURATION });
     },
   });
 }
@@ -56,8 +69,12 @@ export function useUpdateRow<T extends TabName>(tab: T) {
       }
       return { previous };
     },
-    onError: (_err, _vars, ctx) => {
+    onSuccess: () => {
+      toast.success('Updated');
+    },
+    onError: (e, _vars, ctx) => {
       if (ctx?.previous) qc.setQueryData(['rows', tab], ctx.previous);
+      toast.error(errMsg(e, "Couldn't update"), { duration: ERROR_DURATION });
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ['rows', tab] });
@@ -83,8 +100,12 @@ export function useDeleteRow<T extends TabName>(tab: T) {
       }
       return { previous };
     },
-    onError: (_err, _id, ctx) => {
+    onSuccess: () => {
+      toast.success('Deleted');
+    },
+    onError: (e, _id, ctx) => {
       if (ctx?.previous) qc.setQueryData(['rows', tab], ctx.previous);
+      toast.error(errMsg(e, "Couldn't delete"), { duration: ERROR_DURATION });
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ['rows', tab] });
