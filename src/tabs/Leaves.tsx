@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input, Label } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/PageHeader';
 import type { LeavePerson, LeaveRow, LeaveShift, LeaveType } from '@/types';
 
@@ -47,7 +48,19 @@ export function LeavesTab() {
         }
       />
       <div className="p-4 space-y-2">
-        {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+        {isLoading &&
+          [0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3"
+            >
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-40" />
+              </div>
+              <Skeleton className="size-8 rounded-md" />
+            </div>
+          ))}
         {data && data.length === 0 && (
           <p className="text-sm text-muted-foreground">No leaves logged yet.</p>
         )}

@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react';
 import { useAddRow, useDeleteRow, useRows, useUpdateRow } from '@/api/hooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/PageHeader';
 import type { ShoppingRow } from '@/types';
 
@@ -47,7 +48,14 @@ export function ShoppingTab() {
       </form>
 
       <div className="p-4 pt-2 space-y-1">
-        {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+        {isLoading &&
+          [0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-2 px-2 py-2">
+              <Skeleton className="size-5 rounded" />
+              <Skeleton className="h-4 max-w-[60%] flex-1" />
+              <Skeleton className="size-8 rounded-md" />
+            </div>
+          ))}
         {!isLoading && open.length === 0 && done.length === 0 && (
           <p className="text-sm text-muted-foreground">List is empty.</p>
         )}

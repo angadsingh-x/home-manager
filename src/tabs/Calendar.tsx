@@ -6,6 +6,7 @@ import { useAddRow, useDeleteRow, useRows } from '@/api/hooks';
 import { Button } from '@/components/ui/button';
 import { Input, Label, Textarea } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/PageHeader';
 import type { CalendarRow } from '@/types';
 
@@ -55,11 +56,26 @@ export function CalendarTab() {
         }
       />
       <div className="p-4 space-y-3">
-        {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
-
-        <Section title="Upcoming" rows={upcoming} onDelete={(id) => del.mutate(id)} emptyText="No upcoming events." />
-        {past.length > 0 && (
-          <Section title="Past" rows={past} onDelete={(id) => del.mutate(id)} emptyText="" muted />
+        {isLoading ? (
+          <div className="space-y-2">
+            <p className="px-1 text-xs uppercase tracking-wide text-muted-foreground">Upcoming</p>
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="space-y-2 rounded-lg border border-border bg-card px-4 py-3"
+              >
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <Section title="Upcoming" rows={upcoming} onDelete={(id) => del.mutate(id)} emptyText="No upcoming events." />
+            {past.length > 0 && (
+              <Section title="Past" rows={past} onDelete={(id) => del.mutate(id)} emptyText="" muted />
+            )}
+          </>
         )}
       </div>
     </div>
