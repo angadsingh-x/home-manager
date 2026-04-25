@@ -65,12 +65,23 @@ After editing `Code.gs`, click Deploy → Manage deployments → pencil icon →
 
 ## Optional: clasp
 
-If you prefer CLI:
+If you prefer CLI, the project root has a `.clasp.json.example`:
 
 ```bash
-npm i -g @google/clasp
-clasp login
+npm i -g @google/clasp     # one-time
+clasp login                # one-time
+
+# Either bind to an existing Apps Script project (recommended, keeps the same /exec URL):
+cp .clasp.json.example .clasp.json
+# paste the script ID from script.google.com → Project Settings → IDs → Script ID
+
+# …or create a fresh project:
 clasp create --type webapp --rootDir apps-script
-clasp push
-clasp deploy
+
+# From then on:
+npm run script:push        # push current apps-script/ to the Head deployment
+npm run deploy:script      # push + create a new versioned deployment
 ```
+
+`.clasp.json` and `.clasprc.json` are gitignored — the script ID is bound to
+your Google account.
