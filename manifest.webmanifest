@@ -1,0 +1,31 @@
+{
+  "name": "Home Manager",
+  "short_name": "Home",
+  "description": "Shared household coordination for two: leaves, shopping, calendar, things to remember.",
+  "start_url": "/home-manager/",
+  "scope": "/home-manager/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ]
+}
