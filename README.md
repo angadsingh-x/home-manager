@@ -37,8 +37,19 @@ Follow `apps-script/README.md`. You'll end up with:
 
 ### 2. Frontend (this folder)
 
+Quickest path:
+
 ```bash
-cd home-manager
+./setup.sh
+```
+
+Prompts for the two env values, writes `.env.local`, runs `npm install`, and
+optionally deploys to GitHub Pages. Re-runnable — it preserves existing
+values as defaults.
+
+Manual path is the same thing by hand:
+
+```bash
 cp .env.example .env.local
 # Fill in:
 #   VITE_GOOGLE_CLIENT_ID  ← from the Google Cloud OAuth client
@@ -65,6 +76,24 @@ Open `http://localhost:5173`. Sign in with one of the allowlisted Google account
 
 Live URL: `https://<your-username>.github.io/home-manager/`.
 
+### 4. Deploy Apps Script changes (optional, via clasp)
+
+The web UI flow in `apps-script/README.md` always works. If you'd rather push
+from CLI:
+
+```bash
+npm install -g @google/clasp   # one-time
+clasp login                    # one-time
+cp .clasp.json.example .clasp.json
+# Edit .clasp.json — paste the script ID (from script.google.com → Project Settings)
+
+npm run deploy:script          # clasp push + clasp deploy (creates a new versioned deployment)
+# Or just push to the head, no new deployment:
+npm run script:push
+```
+
+`.clasp.json` is gitignored because the script ID is per-environment.
+
 > The OAuth client ID and Apps Script URL are baked into the build at compile time. They aren't secrets — the Apps Script verifies the ID token and email allowlist on every request.
 
 ## Tech
@@ -82,6 +111,15 @@ Live URL: `https://<your-username>.github.io/home-manager/`.
 ```
 home-manager/
 ├── apps-script/         # Apps Script backend (deployed separately)
+├── public/              # static assets copied verbatim into dist/
+│   ├── icon.svg         # vector source — also used by manifest + favicon
+│   ├── icon-192.png     # PWA icons (Android)
+│   ├── icon-512.png
+│   ├── apple-touch-icon.png
+│   ├── manifest.webmanifest
+│   └── sw.js            # service worker (offline app shell)
+├── scripts/
+│   └── generate-icons.py  # rasterizes PNG icons from the design (Pillow)
 ├── src/
 │   ├── api/             # client.ts (fetch wrapper) + hooks.ts (TanStack Query)
 │   ├── auth/            # GoogleOAuthProvider + sign-in screen
@@ -90,9 +128,25 @@ home-manager/
 │   ├── lib/             # cn() helper
 │   ├── App.tsx          # auth gate + routes
 │   ├── main.tsx
+│   ├── registerSW.ts    # registers the service worker in production
 │   ├── index.css
 │   └── types.ts
+├── setup.sh             # bring-up: prompts env, installs, optional deploy
 ├── index.html
 ├── vite.config.ts
 └── package.json
 ```
+
+## PWA / install to home screen
+
+The app ships with a manifest and a service worker that pre-caches the app
+shell, so it installs to the home screen on iOS and Android and works when
+offline (read-only — mutations need network for Apps Script).
+
+To redesign the icon, edit `public/icon.svg` and update the matching shapes
+in `scripts/generate-icons.py`, then run `npm run icons` (requires
+`pip install Pillow`).
+
+The service worker only registers in production builds. After a redeploy,
+clients pick up new bundle hashes via network-first navigation; old cached
+assets become orphans and don't get served.

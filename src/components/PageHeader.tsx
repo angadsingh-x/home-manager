@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react';
+import { ThemeToggle } from './ThemeToggle';
 
 export function PageHeader({ title, action }: { title: string; action?: ReactNode }) {
   return (
@@ -7,7 +8,10 @@ export function PageHeader({ title, action }: { title: string; action?: ReactNod
       style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
     >
       <h1 className="text-lg font-semibold">{title}</h1>
-      {action}
+      <div className="flex items-center gap-1">
+        {action}
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

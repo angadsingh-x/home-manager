@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist",
+    "icons": "python3 scripts/generate-icons.py",
+    "script:push": "clasp push -f",
+    "deploy:script": "clasp push -f && clasp deploy --description \"deploy $(date -u +%Y-%m-%dT%H:%MZ)\""
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",
@@ -27,6 +30,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@google/clasp": "^2.4.2",
     "@types/node": "^25.6.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
