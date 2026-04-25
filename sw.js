@@ -68,8 +68,12 @@ self.addEventListener('fetch', (event) => {
 async function networkFirstNavigation(request) {
   try {
     const fresh = await fetch(request);
-    const cache = await caches.open(SHELL_CACHE);
-    cache.put(SCOPE_PATH, fresh.clone()).catch(() => {});
+    // Only cache successful shell responses — never poison the offline shell
+    // with a 4xx/5xx (e.g. a stale GitHub Pages 404 page).
+    if (fresh.ok) {
+      const cache = await caches.open(SHELL_CACHE);
+      cache.put(SCOPE_PATH, fresh.clone()).catch(() => {});
+    }
     return fresh;
   } catch {
     const cached = await caches.match(SCOPE_PATH);
