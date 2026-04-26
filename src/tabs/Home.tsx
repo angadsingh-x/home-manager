@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
 import { addDays, endOfWeek, format, isWithinInterval, parseISO, startOfDay } from 'date-fns';
 import { useHome, useRows } from '@/api/hooks';
 import { useAuth } from '@/auth/useAuth';
@@ -38,18 +40,24 @@ export function HomeTab() {
             <DayCard label="Today" leaves={data.today.leaves} events={data.today.events} />
             <DayCard label="Tomorrow" leaves={data.tomorrow.leaves} events={data.tomorrow.events} />
             <ThisWeekCard />
-            <Card>
-              <CardHeader>
-                <CardTitle>Shopping</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">
-                  {data.today.shoppingOpenCount === 0
-                    ? 'Nothing on the list.'
-                    : `${data.today.shoppingOpenCount} open item${data.today.shoppingOpenCount === 1 ? '' : 's'}.`}
-                </p>
-              </CardContent>
-            </Card>
+            <Link
+              to="/shopping"
+              className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <Card className="transition-colors hover:bg-accent/50 active:bg-accent">
+                <CardHeader>
+                  <CardTitle>Shopping</CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center justify-between">
+                  <p className="text-sm">
+                    {data.today.shoppingOpenCount === 0
+                      ? 'Nothing on the list.'
+                      : `${data.today.shoppingOpenCount} open item${data.today.shoppingOpenCount === 1 ? '' : 's'}.`}
+                  </p>
+                  <ChevronRight className="size-5 text-muted-foreground" />
+                </CardContent>
+              </Card>
+            </Link>
           </>
         )}
       </div>
