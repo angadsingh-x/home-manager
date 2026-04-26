@@ -54,6 +54,21 @@ function json(obj, _status) {
 }
 
 function verifyIdToken(token) {
+  const cache = CacheService.getScriptCache();
+  const key = 'tok:' + Utilities.base64EncodeWebSafe(
+    Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, token)
+  );
+  const nowSec = Math.floor(Date.now() / 1000);
+
+  const hit = cache.get(key);
+  if (hit) {
+    try {
+      const cached = JSON.parse(hit);
+      if (Number(cached.exp) > nowSec) return cached;
+    } catch (e) { /* fall through to refetch */ }
+    cache.remove(key);
+  }
+
   const url = 'https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(token);
   const resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
   if (resp.getResponseCode() !== 200) return null;
@@ -61,7 +76,11 @@ function verifyIdToken(token) {
   const expectedAud = PropertiesService.getScriptProperties().getProperty('ALLOWED_AUD');
   if (!expectedAud || claims.aud !== expectedAud) return null;
   if (claims.email_verified !== 'true' && claims.email_verified !== true) return null;
-  if (Number(claims.exp) * 1000 < Date.now()) return null;
+  if (Number(claims.exp) <= nowSec) return null;
+
+  // Cap cache TTL to remaining token lifetime, max 5 min.
+  const ttl = Math.min(300, Number(claims.exp) - nowSec);
+  if (ttl > 0) cache.put(key, JSON.stringify(claims), ttl);
   return claims;
 }
 
