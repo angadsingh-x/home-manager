@@ -43,7 +43,7 @@ export function LeavesTab() {
     const sorted = [...filtered].sort(byDateDesc);
     const byMonth = new Map<string, LeaveRow[]>();
     for (const r of sorted) {
-      const key = String(r.date).slice(0, 7);
+      const key = localDay(r.date).slice(0, 7);
       const arr = byMonth.get(key) ?? [];
       arr.push(r);
       byMonth.set(key, arr);
@@ -162,14 +162,24 @@ function fmtMonth(key: string) {
   }
 }
 
+// Sheets may return dates as UTC ISO timestamps (e.g. 2026-09-30T18:30:00.000Z
+// for Oct 1 in IST). Normalise to a local yyyy-MM-dd so grouping, sorting and
+// display all agree.
+function localDay(v: unknown): string {
+  const s = String(v ?? '');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? s.slice(0, 10) : format(d, 'yyyy-MM-dd');
+}
+
 function byDateDesc(a: LeaveRow, b: LeaveRow) {
-  return String(b.date).localeCompare(String(a.date));
+  return localDay(b.date).localeCompare(localDay(a.date));
 }
 
 function fmtDate(s: string) {
   if (!s) return '';
   try {
-    return format(parseISO(s), 'EEE, MMM d');
+    return format(parseISO(localDay(s)), 'EEE, MMM d');
   } catch {
     return String(s).slice(0, 10);
   }
@@ -180,7 +190,7 @@ function LeaveForm({ onSubmit }: { onSubmit: (v: FormValues) => Promise<void> })
     defaultValues: {
       person: 'maid',
       shift: '-',
-      date: new Date().toISOString().slice(0, 10),
+      date: format(new Date(), 'yyyy-MM-dd'),
       type: 'leave',
       notes: '',
     },
